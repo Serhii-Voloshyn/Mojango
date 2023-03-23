@@ -1,0 +1,2 @@
+# Mojango
+Django pet project
