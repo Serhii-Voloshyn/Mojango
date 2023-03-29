@@ -1,10 +1,11 @@
 from rest_framework import serializers
 from rest_framework.validators import ValidationError
+from rest_framework.authtoken.models import Token
 from .models import Customer
 
 
-class SignUpSerializer(serializers.ModelSerializer):
-    email = serializers.CharField(max_length=150)
+class CustomerCreateSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(max_length=150)
     password = serializers.CharField(min_length=8, max_length=128)
     first_name = serializers.CharField(max_length=150)
     last_name = serializers.CharField(max_length=150)
@@ -14,19 +15,27 @@ class SignUpSerializer(serializers.ModelSerializer):
         fields = ['email', 'password', 'first_name', 'last_name']
 
     def validate(self, attrs):
-
         email_exists=Customer.objects.filter(email=attrs['email']).exists()
         if email_exists:
             raise ValidationError('Email already exists')
 
         return super().validate(attrs)
+    
+    def create(self, validated_data):
+        password = validated_data.pop('password')
+        user = super().create(validated_data)
+        user.set_password(password)
+        user.save()
+
+        Token.objects.create(user=user)
+
+        return user
 
 
-class CustomerSerializer(serializers.ModelSerializer):
+class CustomerListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
         fields = (
             'id', 'first_name', 'last_name', 'email', 'password',
             'location',
         )
-        

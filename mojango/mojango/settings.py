@@ -55,7 +55,7 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'mojango.urls'
 
 REST_FRAMEWORK = {
-    'NON_FIELD_ERRORS_KEY': 'errors',
+    'NON_FIELD_ERRORS_KEY': 'Error',
     'DEFAULT_AUTHENTICATION_CLASS': (
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
