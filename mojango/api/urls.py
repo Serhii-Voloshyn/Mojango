@@ -3,16 +3,11 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView, TokenRefreshView, TokenVerifyView,
 )
 from .views import (
-    CustomerListView, CustomerCreateView, LoginView
+    CustomerCreateView, LoginView
 )
 
 
 urlpatterns = [
-    path(
-        'customer_list', 
-        CustomerListView.as_view(), 
-        name='customer_list'
-    ),
     path(
         'customer_create', 
         CustomerCreateView.as_view(), 

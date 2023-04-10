@@ -2,14 +2,9 @@ from django.contrib.auth import authenticate
 from rest_framework import generics, status, views
 from rest_framework.response import Response
 from rest_framework.request import Request
-from .serializers import CustomerListSerializer, CustomerCreateSerializer
+from .serializers import CustomerCreateSerializer
 from .models import Customer
 from .tokens import create_jwt_pair_for_user
-
-
-class CustomerListView(generics.ListAPIView):
-    queryset = Customer.objects.all()
-    serializer_class = CustomerListSerializer
 
 
 class CustomerCreateView(generics.CreateAPIView):
@@ -17,7 +12,6 @@ class CustomerCreateView(generics.CreateAPIView):
 
 
 class LoginView(views.APIView):
-    permission_classes = []
 
     def post(self, request:Request):
         email = request.data.get('email')
