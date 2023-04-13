@@ -11,14 +11,18 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 import os
+from datetime import timedelta
+from dotenv import load_dotenv, find_dotenv
 from pathlib import Path
+from django.conf import settings
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+load_dotenv(find_dotenv())
 SECRET_KEY = os.environ['SECRET_KEY']
 
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = []
 
@@ -32,8 +36,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'api',
+    'api.apps.ApiConfig',
+    'rest_framework',
+    'rest_framework.authtoken',
 ]
+
+AUTH_USER_MODEL = 'api.Customer'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -46,6 +54,22 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'mojango.urls'
+
+REST_FRAMEWORK = {
+    'NON_FIELD_ERRORS_KEY': 'Error',
+    'DEFAULT_AUTHENTICATION_CLASS': (
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=2),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'SIGNING_KEY': SECRET_KEY,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
 
 TEMPLATES = [
     {
