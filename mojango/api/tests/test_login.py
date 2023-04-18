@@ -95,3 +95,20 @@ class TestLogin(TestCase):
         )
         self.assertEqual(response.status_code, 400)
         self.assertNotIn('token', response.json())
+
+    def test_successful_get(self):
+        self.customer.login(email=self.test_customer['email'], password=self.test_customer['password'])
+        response = self.customer.get(
+            path=self.path,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('user', response.json())
+        self.assertIn('auth', response.json())
+
+    def test_unauthorized_get(self):
+        response = self.customer.get(
+            path=self.path,
+        )
+        self.assertEqual(response.status_code, 401)
+        self.assertNotIn('user', response.json())
+        self.assertNotIn('auth', response.json())
