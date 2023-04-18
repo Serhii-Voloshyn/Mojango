@@ -1,6 +1,7 @@
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from phone_field import PhoneField
 
 
 class CustomUserManager(BaseUserManager):
@@ -30,10 +31,15 @@ class Customer(AbstractUser):
     username = None
     email = models.EmailField(max_length=150, unique=True)
     location = models.TextField(max_length=1000, null=True)
+    phone = PhoneField(blank=True)
 
     objects = CustomUserManager()
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['password']
+
+    def update_password(self, new_password):
+        self.set_password(new_password)
+        self.save()
 
     def __str__(self):
         return self.email
