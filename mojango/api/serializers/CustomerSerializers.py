@@ -21,6 +21,7 @@ class CustomerCreateSerializer(serializers.ModelSerializer):
         return super().validate(attrs)
     
     def create(self, validated_data):
+        validated_data['is_active'] = False
         user = Customer.objects.create_user(**validated_data)
 
         return user
