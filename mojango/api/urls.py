@@ -4,7 +4,8 @@ from rest_framework_simplejwt.views import (
 )
 from .views import (
     CustomerCreateView, LoginView, CustomerDeleteView,
-    CustomerUpdateView, CustomerListAllView, CustomerListOneView
+    CustomerUpdateView, CustomerListAllView, CustomerListOneView,
+    CustomerActivateView
 )
 
 
@@ -38,6 +39,11 @@ urlpatterns = [
         'login/', 
         LoginView.as_view(), 
         name='login'
+    ),
+    path(
+        'activate_customer/<uidb64>/<token>', 
+        CustomerActivateView.as_view(), 
+        name='activate'
     ),
     path(
         'jwt/token/', 

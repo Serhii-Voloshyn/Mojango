@@ -1,7 +1,7 @@
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from phone_field import PhoneField
+from phonenumber_field.modelfields import PhoneNumberField
 
 
 class CustomUserManager(BaseUserManager):
@@ -31,7 +31,7 @@ class Customer(AbstractUser):
     username = None
     email = models.EmailField(max_length=150, unique=True)
     location = models.TextField(max_length=1000, null=True)
-    phone = PhoneField(blank=True)
+    phone_number = PhoneNumberField(blank=True)
 
     objects = CustomUserManager()
     USERNAME_FIELD = 'email'

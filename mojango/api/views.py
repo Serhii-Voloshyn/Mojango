@@ -1,18 +1,66 @@
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, get_user_model
 from django.shortcuts import get_object_or_404
+from django.contrib.sites.shortcuts import get_current_site
+
+from django.utils.http import urlsafe_base64_decode
+from django.utils.encoding import force_str
+
 from rest_framework import generics, status, views
 from rest_framework.response import Response
 from rest_framework.request import Request
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated
+
 from .serializers.CustomerSerializers import (
     CustomerCreateSerializer, CustomerUpdateSerializer, CustomerGetSerializer
 )
+
 from .models import Customer
-from .tokens import create_jwt_pair_for_user
+from .tokens import create_jwt_pair_for_user, account_activation_token
+from .tasks import send_activate_email_task
+
+
+class CustomerActivateView(generics.RetrieveAPIView):
+    serializer_class = CustomerGetSerializer
+
+    def get(self, request, uidb64, token):
+        User = get_user_model()
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except(TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+
+        if user and account_activation_token.check_token(user, token):
+            user.is_active = True
+            user.save()
+            response = {'message': 'Activated successfuly'}
+            return Response(data=response, status=status.HTTP_201_CREATED)
+
+        response = {'message': 'Activation denied'}
+        return Response(data=response, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CustomerCreateView(generics.CreateAPIView):
     serializer_class = CustomerCreateSerializer
+
+    def post(self, request):
+        serializer = self.get_serializer(
+            data=request.data
+        )
+
+        if serializer.is_valid():
+            user = serializer.save()
+            if send_activate_email_task.delay(
+                get_current_site(request).domain,
+                request.is_secure(),
+                user.id, user.email
+            ):
+                response = {'message': 'Created successfuly'}
+                return Response(data=response, status=status.HTTP_201_CREATED)
+            else:
+                user.delete()
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CustomerListAllView(generics.ListAPIView):
@@ -25,7 +73,7 @@ class CustomerListOneView(generics.ListAPIView):
 
     def get(self, request, pk):
         response = self.get_serializer(get_object_or_404(Customer, id=pk)).data
-        return Response(response)
+        return Response(response, status=status.HTTP_200_OK)
 
 
 class CustomerUpdateView(generics.UpdateAPIView):
