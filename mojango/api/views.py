@@ -1,15 +1,14 @@
 from django.contrib.auth import authenticate, get_user_model
 from django.shortcuts import get_object_or_404
-from django.template.loader import render_to_string
 from django.contrib.sites.shortcuts import get_current_site
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes, force_str
-from django.core.mail import EmailMessage
+
+from django.utils.http import urlsafe_base64_decode
+from django.utils.encoding import force_str
 
 from rest_framework import generics, status, views
 from rest_framework.response import Response
 from rest_framework.request import Request
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated
 
 from .serializers.CustomerSerializers import (
     CustomerCreateSerializer, CustomerUpdateSerializer, CustomerGetSerializer
@@ -17,21 +16,7 @@ from .serializers.CustomerSerializers import (
 
 from .models import Customer
 from .tokens import create_jwt_pair_for_user, account_activation_token
-
-
-def activateEmail(request, user, to_email):
-    """Sends confirmation email. If not send successfuly, returns False, else -- True."""
-
-    mail_subject = 'Activate your user account.'
-    message = render_to_string('template_activate_account.html', {
-        'user': user,
-        'domain': get_current_site(request).domain,
-        'uid': urlsafe_base64_encode(force_bytes(user.id)),
-        'token': account_activation_token.make_token(user),
-        'protocol': 'https' if request.is_secure() else 'http'
-    })
-    email = EmailMessage(mail_subject, message, to=[to_email])
-    return email.send()
+from .tasks import send_activate_email_task
 
 
 class CustomerActivateView(generics.RetrieveAPIView):
@@ -65,7 +50,11 @@ class CustomerCreateView(generics.CreateAPIView):
 
         if serializer.is_valid():
             user = serializer.save()
-            if activateEmail(request, user, user.email):
+            if send_activate_email_task.delay(
+                get_current_site(request).domain,
+                request.is_secure(),
+                user.id, user.email
+            ):
                 response = {'message': 'Created successfuly'}
                 return Response(data=response, status=status.HTTP_201_CREATED)
             else:

@@ -145,6 +145,26 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+
+    'handlers': {
+        'info': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'logs.log',
+        },
+    },
+
+    'loggers': {
+        '': {
+            'handlers': ['info'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
@@ -180,3 +200,5 @@ EMAIL_FROM = os.environ['EMAIL_HOST_USER']
 EMAIL_HOST_USER = os.environ['EMAIL_HOST_USER']
 EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
 PASSWORD_RESET_TIMEOUT = 14400
+
+CELERY_BROKER_URL = os.environ['CELERY_BROKER_URL']
