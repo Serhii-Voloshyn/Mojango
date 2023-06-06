@@ -57,6 +57,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
     'corsheaders.middleware.CorsMiddleware',
+    'api.middleware.MiddlewareLogger'
 ]
 
 ROOT_URLCONF = 'mojango.urls'
@@ -149,11 +150,23 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
 
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {process:d} {thread:d} {message}",
+            "style": "{",
+        },
+        "simple": {
+            "format": "{levelname} {message}",
+            "style": "{",
+        },
+    },
+
     'handlers': {
         'info': {
             'level': 'INFO',
             'class': 'logging.FileHandler',
             'filename': BASE_DIR / 'logs.log',
+            'formatter': 'verbose',
         },
     },
 
@@ -188,17 +201,17 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CORS_ALLOWED_ORIGINS = [
+"""CORS_ALLOWED_ORIGINS = [
     os.environ['FRONTEND_URL']
-]
+]"""
 
-EMAIL_BACKED = 'django.core.mail.backends.smtp.EmailBackend'
+"""EMAIL_BACKED = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_FROM = os.environ['EMAIL_HOST_USER']
 EMAIL_HOST_USER = os.environ['EMAIL_HOST_USER']
 EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
-PASSWORD_RESET_TIMEOUT = 14400
+PASSWORD_RESET_TIMEOUT = 14400"""
 
-CELERY_BROKER_URL = os.environ['CELERY_BROKER_URL']
+#CELERY_BROKER_URL = os.environ['CELERY_BROKER_URL']
