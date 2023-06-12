@@ -5,7 +5,8 @@ from rest_framework_simplejwt.views import (
 from .views import (
     CustomerCreateView, LoginView, CustomerDeleteView,
     CustomerUpdateView, CustomerListAllView, CustomerListOneView,
-    CustomerActivateView
+    CustomerActivateView, CreateOrderView, CreateItemView,
+    CreateProductView
 )
 
 
@@ -60,4 +61,20 @@ urlpatterns = [
         TokenVerifyView.as_view(), 
         name='token_verify'
     ),
+
+    path(
+        'order_create/',
+        CreateOrderView.as_view(),
+        name='create_order'
+    ),
+    path(
+        'add_item/',
+        CreateItemView.as_view(),
+        name='add_item'
+    ),
+    path(
+        'create_product',
+        CreateProductView.as_view(),
+        name='create_product'
+    )
 ]

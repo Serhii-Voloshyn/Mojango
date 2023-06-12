@@ -11,10 +11,19 @@ from rest_framework.request import Request
 from rest_framework.permissions import IsAuthenticated
 
 from .serializers.CustomerSerializers import (
-    CustomerCreateSerializer, CustomerUpdateSerializer, CustomerGetSerializer
+    CustomerCreateSerializer, CustomerUpdateSerializer, CustomerGetSerializer,
+)
+from .serializers.OrderSerializers import (
+    OrderCreateSerializer
+)
+from .serializers.OrderItemSerializers import (
+    OrderItemCreateSerializer
+)
+from .serializers.ProductSerializers import (
+    ProductCreateSerializer
 )
 
-from .models import Customer
+from .models import Customer, Order, OrderItem, Product
 from .tokens import create_jwt_pair_for_user, account_activation_token
 from .tasks import send_activate_email_task
 
@@ -112,6 +121,26 @@ class CustomerDeleteView(generics.DestroyAPIView):
 
         response = {'message': 'Successfuly deleted'}
         return Response(data=response, status=status.HTTP_204_NO_CONTENT)
+
+
+class CreateOrderView(generics.CreateAPIView):
+    serializer_class = OrderCreateSerializer
+    permission_classes = [IsAuthenticated, ]
+
+    def get_queryset(self):
+
+        user = self.request.user
+        return Order.objects.get(customer_id=user.id)
+    
+
+class CreateItemView(generics.CreateAPIView):
+    serializer_class = OrderItemCreateSerializer
+    permission_classes = [IsAuthenticated,]
+
+
+class CreateProductView(generics.CreateAPIView):
+    serializer_class = ProductCreateSerializer
+    permission_classes = [IsAuthenticated, ]
 
 
 class LoginView(views.APIView):
