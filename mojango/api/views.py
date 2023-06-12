@@ -99,7 +99,7 @@ class CustomerUpdateView(generics.UpdateAPIView):
 
 class CustomerDeleteView(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated,]
-    
+
     def delete(self, request:Request, pk):
 
         if request.user.id != pk and not request.user.is_staff:
