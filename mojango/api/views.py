@@ -27,6 +27,11 @@ from .models import Customer, Order, OrderItem, Product
 from .tokens import create_jwt_pair_for_user, account_activation_token
 from .tasks import send_activate_email_task
 
+import logging
+
+
+logger = logging.getLogger(__name__)
+
 
 class CustomerActivateView(generics.RetrieveAPIView):
     serializer_class = CustomerGetSerializer
@@ -68,6 +73,8 @@ class CustomerCreateView(generics.CreateAPIView):
                 return Response(data=response, status=status.HTTP_201_CREATED)
             else:
                 user.delete()
+                response = {'message': 'Email wasn\'t sent'}
+                return Response(data=response, status=status.status.HTTP_400_BAD_REQUEST)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

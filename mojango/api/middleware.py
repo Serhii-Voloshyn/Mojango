@@ -21,4 +21,4 @@ class MiddlewareLogger:
         logger.info(f"Request from {request.user.id} to {view_func}({view_args}, {view_kwargs})")
 
     def process_exception(self, request, exception):
-        logger.error(f"Response error {exception} from {request.get_full_path()} with data {request.data}")
+        logger.error(f"Response error {exception} from {request.get_full_path()}")

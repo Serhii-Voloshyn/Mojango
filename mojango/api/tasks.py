@@ -33,3 +33,19 @@ def send_activate_email_task(domain, is_secure, user_id, to_email):
     })
     email = EmailMessage(mail_subject, message, to=[to_email])
     return email.send()
+
+
+@shared_task(name="send_supplier_notification_email_task")
+def send_supplier_notification_email_task(supplier_id, to_email):
+    """Sends notification email. If not send successfuly, returns False, else -- True."""
+
+    logger.info(f"Sent supplier notification email to {supplier_id}")
+
+    supplier = Customer.objects.get(id=supplier_id)
+
+    mail_subject = 'Notification about ordering products.'
+    message = render_to_string('template_supplier_notification.html', {
+        'supplier': supplier,
+    })
+    email = EmailMessage(mail_subject, message, to=[to_email])
+    return email.send()
